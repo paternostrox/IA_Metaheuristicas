@@ -2,24 +2,25 @@ from asyncio.windows_events import NULL
 import auxiliary as aux
 
 def gradient_descent():
+    # Importa base de dados
     df = aux.import_data_fifa(110)
+
+    # Toma solução randômica como primeira solução
     curr_sol = aux.get_random_solution(df)
 
     print('Starting')
     print(curr_sol)
-    print(aux.get_std(df, curr_sol))
+    print(aux.get_std(curr_sol, df))
 
     while(True):
-        curr_std = aux.get_std(df, curr_sol)
+        curr_std = aux.get_std(curr_sol, df)
 
-        best_std = curr_std
         best_sol = curr_sol
 
         neighborhood = aux.get_neighborhood(curr_sol)
         for neighbor_sol in neighborhood:
-            neighbor_std = aux.get_std(df, curr_sol)
-            if neighbor_std[0] < best_std[0]:
-                best_std = neighbor_std
+            print(aux.fitness(neighbor_sol, df), " || ", aux.fitness(best_sol, df))
+            if aux.fitness(neighbor_sol, df) < aux.fitness(best_sol, df):
                 best_sol = neighbor_sol
 
         if best_sol == curr_sol:
@@ -29,6 +30,6 @@ def gradient_descent():
 
     print('DONE')
     print(curr_sol)
-    print(aux.get_std(df, curr_sol))
+    print(aux.get_std(curr_sol, df))
 
 gradient_descent()

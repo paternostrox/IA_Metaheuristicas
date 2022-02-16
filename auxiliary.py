@@ -33,7 +33,7 @@ def get_random_solution(df):
     return groups
 
 # Retorna médias de cada grupo para Age, Overall e Value
-def get_attributes_means(df, solution):
+def get_attributes_means(solution, df):
     means = []
     for i in range(len(solution)):
         total_age = 0.0
@@ -53,8 +53,8 @@ def print_formatted_means(means):
     print(*['[%.3f, %.3f, %.3f]' % (vals[0], vals[1], vals[2]) for vals in means])
 
 # Overload açucarado para facilitar a vida
-def get_std(df, solution):
-    means = get_attributes_means(df, solution)
+def get_std(solution, df):
+    means = get_attributes_means(solution, df)
     return get_std_means(means)
 
 # Dado as médias de uma solução
@@ -91,12 +91,15 @@ def get_neighborhood(solution):
 
 # Compares solutions s1 and s2
 # Returns best solution
-def best_solution(s1, s2, df):
-    return
+def fitness(solution, df):
+    means = get_attributes_means(solution, df)
+    std = get_std_means(means)
+    return std[0]
+
 
 # df = import_data_fifa(team_size*10)
 # solution = get_random_solution(df)
-# means = get_attributes_means(df, solution)
+# means = get_attributes_means(solution, df)
 # print_formatted_means(means)
 # std = get_std(means)
 # print(std)

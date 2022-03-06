@@ -39,13 +39,14 @@ def get_attributes_means(solution, df):
         total_age = 0.0
         total_overall = 0.0
         total_value = 0.0
-        for j in range(team_size):
+        curr_team_size = len(solution[i])
+        for j in range(curr_team_size):
             index = solution[i][j]
             player = df.loc[index]
             total_age += player[0]
             total_overall += player[1]
             total_value += player[2]
-        aov = [total_age/team_size, total_overall/team_size, total_value/team_size]
+        aov = [total_age/curr_team_size, total_overall/curr_team_size, total_value/curr_team_size]
         means.append(aov)
     return means
 
@@ -89,8 +90,7 @@ def get_neighborhood(solution):
         neighborhood.append(neighbor)
     return neighborhood
 
-# Compares solutions s1 and s2
-# Returns best solution
+# Returns solution fitness
 def fitness(solution, df):
     means = get_attributes_means(solution, df)
     std = get_std_means(means)

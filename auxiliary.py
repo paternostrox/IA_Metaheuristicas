@@ -1,3 +1,4 @@
+from cmath import inf
 import copy
 from operator import index
 import random
@@ -20,7 +21,7 @@ def import_data_fifa(elem_amount):
     return df
 
 def get_random_solution(df):
-    groups = []
+    teams = []
     indexes = df.index.values.tolist()
 
     while(len(indexes) > 0):
@@ -29,8 +30,8 @@ def get_random_solution(df):
             rnd = random.randrange(0, len(indexes))
             team.append(indexes[rnd])
             indexes.pop(rnd)
-        groups.append(team)
-    return groups
+        teams.append(team)
+    return teams
 
 # Retorna médias de cada grupo para Age, Overall e Value
 def get_attributes_means(solution, df):
@@ -70,6 +71,7 @@ def get_std_means(means):
 # Função de vizinhança
 # Para cada grupo g1, escolher outro grupo g2 aleatóriamente, formando pares
 # Escolher um jogador de g1 e de g2 aleatóriamente e trocar os dois
+# Desse modo, cada vizinho será a solução com dois jogadores trocados
 def get_neighborhood(solution):
     neighborhood = []
 
@@ -92,6 +94,8 @@ def get_neighborhood(solution):
 
 # Returns solution fitness
 def fitness(solution, df):
+    if(len(solution) == 0 or len(solution[0]) == 0):
+        return np.Inf
     means = get_attributes_means(solution, df)
     std = get_std_means(means)
     return std[0]

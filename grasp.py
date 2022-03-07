@@ -7,6 +7,8 @@ import auxiliary as aux
 pool_size = 100
 rcl_size = 10
 
+max_iter = 100
+
 def sort_func(c):
     return c[0]
 
@@ -72,13 +74,28 @@ def get_random_greedy_solution_fast(df):
             indexes.remove(team[n])
         print(aux.fitness(teams, df))
 
+    return teams
+
             
 def grasp():
     # Importa base de dados
     df = aux.import_data_fifa(110)
 
-    sol = get_random_greedy_solution_fast(df)
+    best_sol = []
 
-    print(aux.fitness(sol, df))
+    # Na vdd sao varias iterações disso (quase ctz)
+    curr_sol = get_random_greedy_solution_fast(df)
+
+    if(aux.fitness(curr_sol, df) < aux.fitness(best_sol, df)):
+        best_sol = curr_sol
+
+    for i in range(max_iter):
+        neighborhood = aux.get_neighborhood(curr_sol)
+        for neighbor_sol in neighborhood:
+            print(aux.fitness(neighbor_sol, df), " || ", aux.fitness(best_sol, df))
+            if aux.fitness(neighbor_sol, df) < aux.fitness(best_sol, df):
+                best_sol = neighbor_sol
+
+    print(aux.fitness(best_sol, df))
 
 grasp()

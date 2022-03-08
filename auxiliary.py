@@ -9,7 +9,10 @@ import seaborn as sns
 import time
 import statistics as stats
 
+from sklearn import preprocessing
+
 team_size = 11
+scaler = preprocessing.MinMaxScaler()
 
 def import_data_fifa(elem_amount):    
     df = pd.read_csv('data/data.csv').sample(n=110,random_state=42)
@@ -17,7 +20,7 @@ def import_data_fifa(elem_amount):
 
     # Trata string de valor, transformando para INT
     df['Value'] = df['Value'].replace({"€": "", "M": "*1E6", "K": "*1E3"}, regex=True).map(pd.eval).astype(int)
-    print(df.head())
+    #print(df.head())
     return df
 
 def get_random_solution(df):
@@ -33,8 +36,8 @@ def get_random_solution(df):
         teams.append(team)
     return teams
 
-# Retorna médias de cada grupo para Age, Overall e Value
-def get_attributes_means(solution, df):
+# Retorna médias de cada time para Age, Overall e Value
+def get_means(solution, df):
     means = []
     for i in range(len(solution)):
         total_age = 0.0
@@ -51,13 +54,22 @@ def get_attributes_means(solution, df):
         means.append(aov)
     return means
 
+def get_means_scaled(solution, df):
+    means = get_means(solution, df)
+    scaled_means = scaler.fit_transform(means)
+    return scaled_means
+
 def print_formatted_means(means):
     print(*['[%.3f, %.3f, %.3f]' % (vals[0], vals[1], vals[2]) for vals in means])
 
-# Overload açucarado para facilitar a vida
 def get_std(solution, df):
-    means = get_attributes_means(solution, df)
+    means = get_means(solution, df)
     return get_std_means(means)
+
+def get_std_scaled(solution, df):
+    means = get_means(solution, df)
+    scaled_means = scaler.fit_transform(means)
+    return get_std_means(scaled_means)
 
 # Dado as médias de uma solução
 # Retorna Desvio Padrão dos três atributos (Age, Overall e Value)
@@ -92,13 +104,18 @@ def get_neighborhood(solution):
         neighborhood.append(neighbor)
     return neighborhood
 
-# Returns solution fitness
+# Returna solution fitness
+# Quanto menor melhor
 def fitness(solution, df):
     if(len(solution) == 0 or len(solution[0]) == 0):
         return np.Inf
-    means = get_attributes_means(solution, df)
-    std = get_std_means(means)
-    return std[0]
+
+    means = get_means(solution, df)
+    scaled_means = scaler.fit_transform(means)
+    std = get_std_means(scaled_means)
+    fitness = std[0] + std[1] + std [2]
+
+    return fitness
 
 
 # df = import_data_fifa(team_size*10)

@@ -20,7 +20,7 @@ def tabu_search():
     print('Solução Randômica Gerada')
     aux.print_DPs(curr_sol, df, scaled_df)
 
-    print('========= BUSCA LOCAL =========')
+    print('######### BUSCA LOCAL #########')
     for i in range(max_iter):
         neighborhood = aux.get_neighborhood(curr_sol)
 

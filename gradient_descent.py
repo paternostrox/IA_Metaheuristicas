@@ -15,7 +15,6 @@ def gradient_descent(start_sol, df):
 
         neighborhood = aux.get_neighborhood(curr_sol)
         for neighbor_sol in neighborhood:
-            #print(aux.fitness(neighbor_sol, scaled_df), " || ", aux.fitness(best_sol, scaled_df))
             if aux.fitness(neighbor_sol, df) < aux.fitness(best_sol, df):
                 best_sol = neighbor_sol
 
@@ -41,7 +40,7 @@ if __name__ == "__main__":
     print('Solução Randômica Gerada')
     aux.print_DPs(start_sol, df, scaled_df)
 
-    print('========= BUSCA LOCAL =========')
+    print('######### BUSCA LOCAL #########')
     final_sol = gradient_descent(start_sol, scaled_df)
 
     print('FIM')

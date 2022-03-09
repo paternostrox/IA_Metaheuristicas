@@ -58,7 +58,7 @@ def grasp():
         print('Solução Construída por Função Gulosa')
 
         # INTENSIFICAÇÃO (BUSCA LOCAL)
-        print('========= BUSCA LOCAL =========')
+        print('######### BUSCA LOCAL #########')
         curr_sol = gd.gradient_descent(curr_sol, scaled_df)
         
         # Caso seja melhor que a melhor encontrada até então, a substitui

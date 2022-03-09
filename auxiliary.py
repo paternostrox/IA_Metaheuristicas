@@ -12,7 +12,7 @@ import statistics as stats
 from sklearn import preprocessing
 
 team_size = 11
-scaler = preprocessing.MinMaxScaler()
+scaler = preprocessing.StandardScaler()
 
 def import_data_fifa(elem_amount):    
     df = pd.read_csv('data/data.csv').sample(n=110,random_state=42)
@@ -35,6 +35,10 @@ def get_random_solution(df):
             indexes.pop(rnd)
         teams.append(team)
     return teams
+
+def scale_dataframe(df):
+    scaled_df = pd.DataFrame(scaler.fit_transform(df), index=df.index, columns=df.columns)
+    return scaled_df
 
 # Retorna médias de cada time para Age, Overall e Value
 def get_means(solution, df):
@@ -61,6 +65,10 @@ def get_means_scaled(solution, df):
 
 def print_formatted_means(means):
     print(*['[%.3f, %.3f, %.3f]' % (vals[0], vals[1], vals[2]) for vals in means])
+
+def print_DPs(sol, df, scaled_df):
+    print('DP Normal:', get_std(sol, df))
+    print('DP Escalado:', get_std(sol, scaled_df), 'FITNESS:', fitness(sol, scaled_df))
 
 def get_std(solution, df):
     means = get_means(solution, df)
@@ -104,6 +112,39 @@ def get_neighborhood(solution):
         neighborhood.append(neighbor)
     return neighborhood
 
+# NÃO UTILIZADA
+# Função de vizinhança com alterações fortes
+def get_neighborhood_wild(solution):
+    neighborhood = []
+
+    # O número de vizinhos é o tamanho do time
+    for n in range(team_size):
+
+        # Embaralha grupos
+        group_idxs = [i for i in range(len(solution))]
+        random.shuffle(group_idxs)
+
+        # Copia solução
+        neighbor = copy.deepcopy(solution)
+
+        # Escolher pares de grupos aleatóriamente e trocar dois jogadores
+        # Desse modo, o vizinho será a solução com um jogador trocado em cada grupo
+        for i in range(0,len(group_idxs),2):
+            g1_index = group_idxs[i]
+            g2_index = group_idxs[i+1]
+
+            for j in range(2):
+                rnd_player1 = random.randrange(0,team_size)
+                rnd_player2 = random.randrange(0,team_size)
+                p1 = neighbor[g1_index].pop(rnd_player1)
+                p2 = neighbor[g2_index].pop(rnd_player2)
+                neighbor[g1_index].append(p2)
+                neighbor[g2_index].append(p1)
+        
+        neighborhood.append(neighbor)
+
+    return neighborhood
+
 # Returna solution fitness
 # Quanto menor melhor
 def fitness(solution, df):
@@ -111,19 +152,15 @@ def fitness(solution, df):
         return np.Inf
 
     means = get_means(solution, df)
-    scaled_means = scaler.fit_transform(means)
-    std = get_std_means(scaled_means)
+    std = get_std_means(means)
     fitness = std[0] + std[1] + std [2]
 
     return fitness
 
 
 # df = import_data_fifa(team_size*10)
-# solution = get_random_solution(df)
-# means = get_attributes_means(solution, df)
-# print_formatted_means(means)
-# std = get_std(means)
-# print(std)
-# neighborhood = get_neighborhood(solution)
-#print(solution)
-#print(neighborhood)
+# scaled_df = scale_dataframe(df)
+# while(True):
+#     input ()
+#     solution = get_random_solution(scaled_df)
+#     print(fitness(solution, scaled_df))

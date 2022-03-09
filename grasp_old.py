@@ -8,6 +8,7 @@ import gradient_descent as gd
 pool_size = 30
 
 max_iter = 10
+iter_local_search = 5
 
 def sort_func(c):
     return c[0]
@@ -55,20 +56,26 @@ def grasp():
         
         # FASE CONSTRUTIVA
         curr_sol = get_random_greedy_solution(scaled_df)
-        print('Solução Construída por Função Gulosa')
 
-        # INTENSIFICAÇÃO (BUSCA LOCAL)
-        print('========= BUSCA LOCAL =========')
-        curr_sol = gd.gradient_descent(curr_sol, scaled_df)
-        
-        # Caso seja melhor que a melhor encontrada até então, a substitui
+        print('Solução Construída por Função Gulosa')
+        print('DP Normal:', aux.get_std(curr_sol, df))
+        print('DP Escalado:', aux.get_std(curr_sol, scaled_df), 'FITNESS:', aux.fitness(curr_sol, scaled_df))
+
         if(aux.fitness(curr_sol, scaled_df) < aux.fitness(best_sol, scaled_df)):
             best_sol = curr_sol
-            print('Nova Melhor Solução Encontrada')
-            aux.print_DPs(best_sol, df, scaled_df)
-    
+
+        # INTENSIFICAÇÃO (BUSCA LOCAL)
+        print('BUSCA LOCAL:')
+        for j in range(iter_local_search):
+            neighborhood = aux.get_neighborhood(curr_sol)
+            for neighbor_sol in neighborhood:
+                print(aux.fitness(neighbor_sol, scaled_df), " || ", aux.fitness(best_sol, scaled_df))
+                if aux.fitness(neighbor_sol, scaled_df) < aux.fitness(best_sol, scaled_df):
+                    best_sol = neighbor_sol
+
     print('FIM')
-    print('Solução Final')
-    aux.print_DPs(best_sol, df, scaled_df)
+    print('DP Normal:', aux.get_std(best_sol, df))
+    print('DP Escalado:', aux.get_std(best_sol, scaled_df), 'FITNESS:', aux.fitness(best_sol, scaled_df))
+
 
 grasp()

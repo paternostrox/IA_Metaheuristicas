@@ -1,6 +1,4 @@
 from asyncio.windows_events import NULL
-
-from matplotlib.pyplot import sca
 import auxiliary as aux
 
 def gradient_descent(start_sol, df):
@@ -29,20 +27,13 @@ def gradient_descent(start_sol, df):
 if __name__ == "__main__":
 
     # Importa base de dados
-    df = aux.import_data_fifa(110)
+    df = aux.import_data_fifa(110, 42)
     # Escala base de dados
     scaled_df = aux.scale_dataframe(df)
 
-    print('INICIANDO DESCIDA DE GRADIENTE')
-
     # Toma solução randômica como primeira solução
     start_sol = aux.get_random_solution(scaled_df)
-    print('Solução Randômica Gerada')
-    aux.print_DPs(start_sol, df, scaled_df)
 
-    print('######### BUSCA LOCAL #########')
+    # Roda algoritmo
     final_sol = gradient_descent(start_sol, scaled_df)
-
-    print('FIM')
-    print('Solução Final')
     aux.print_DPs(final_sol, df, scaled_df)

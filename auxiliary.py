@@ -14,11 +14,11 @@ from sklearn import preprocessing
 team_size = 11
 scaler = preprocessing.StandardScaler()
 
-def import_data_fifa(elem_amount):    
-    df = pd.read_csv('data/data.csv').sample(n=110,random_state=42)
+def import_data_fifa(elem_amount, rnd_state = None):    
+    df = pd.read_csv('data/data.csv').sample(n=110,random_state=rnd_state)
     df = df[['Age', 'Overall', 'Value']]
 
-    # Trata string de valor, transformando para INT
+    # Trata string de valor (e.g. €110.5M), transformando para int
     df['Value'] = df['Value'].replace({"€": "", "M": "*1E6", "K": "*1E3"}, regex=True).map(pd.eval).astype(int)
     #print(df.head())
     return df
@@ -63,21 +63,12 @@ def get_means_scaled(solution, df):
     scaled_means = scaler.fit_transform(means)
     return scaled_means
 
-def print_formatted_means(means):
+def print_means(means):
     print(*['[%.3f, %.3f, %.3f]' % (vals[0], vals[1], vals[2]) for vals in means])
 
 def print_DPs(sol, df, scaled_df):
     print('DP Normal:', get_std(sol, df))
     print('DP Escalado:', get_std(sol, scaled_df), 'FITNESS:', fitness(sol, scaled_df))
-
-def get_std(solution, df):
-    means = get_means(solution, df)
-    return get_std_means(means)
-
-def get_std_scaled(solution, df):
-    means = get_means(solution, df)
-    scaled_means = scaler.fit_transform(means)
-    return get_std_means(scaled_means)
 
 # Dado as médias de uma solução
 # Retorna Desvio Padrão dos três atributos (Age, Overall e Value)
@@ -87,6 +78,12 @@ def get_std_means(means):
     v = [aov[2] for aov in means]
 
     return [stats.stdev(a), stats.stdev(o), stats.stdev(v)]
+
+# Dado uma solução, retorna desvio padrão
+def get_std(solution, df):
+    means = get_means(solution, df)
+    std = get_std_means(means)
+    return std
 
 # Função de vizinhança
 # Para cada grupo g1, escolher outro grupo g2 aleatóriamente, formando pares
@@ -112,39 +109,6 @@ def get_neighborhood(solution):
         neighborhood.append(neighbor)
     return neighborhood
 
-# NÃO UTILIZADA
-# Função de vizinhança com alterações fortes
-def get_neighborhood_wild(solution):
-    neighborhood = []
-
-    # O número de vizinhos é o tamanho do time
-    for n in range(team_size):
-
-        # Embaralha grupos
-        group_idxs = [i for i in range(len(solution))]
-        random.shuffle(group_idxs)
-
-        # Copia solução
-        neighbor = copy.deepcopy(solution)
-
-        # Escolher pares de grupos aleatóriamente e trocar dois jogadores
-        # Desse modo, o vizinho será a solução com um jogador trocado em cada grupo
-        for i in range(0,len(group_idxs),2):
-            g1_index = group_idxs[i]
-            g2_index = group_idxs[i+1]
-
-            for j in range(2):
-                rnd_player1 = random.randrange(0,team_size)
-                rnd_player2 = random.randrange(0,team_size)
-                p1 = neighbor[g1_index].pop(rnd_player1)
-                p2 = neighbor[g2_index].pop(rnd_player2)
-                neighbor[g1_index].append(p2)
-                neighbor[g2_index].append(p1)
-        
-        neighborhood.append(neighbor)
-
-    return neighborhood
-
 # Returna solution fitness
 # Quanto menor melhor
 def fitness(solution, df):
@@ -153,14 +117,18 @@ def fitness(solution, df):
 
     means = get_means(solution, df)
     std = get_std_means(means)
-    fitness = std[0] + std[1] + std [2]
+    fitness = (std[0] + std[1] + std [2]) / 3
 
     return fitness
 
+# Retorna solution fitness em cada atributo
+# Quanto menor melhor
+def fitness_sep(solution, df):
+    if(len(solution) == 0 or len(solution[0]) == 0):
+        return np.Inf
 
-# df = import_data_fifa(team_size*10)
-# scaled_df = scale_dataframe(df)
-# while(True):
-#     input ()
-#     solution = get_random_solution(scaled_df)
-#     print(fitness(solution, scaled_df))
+    means = get_means(solution, df)
+    std = get_std_means(means)
+    fitness = std
+
+    return fitness

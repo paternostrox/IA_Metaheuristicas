@@ -1,19 +1,14 @@
 import copy
-from multiprocessing import pool
 import random
-from tokenize import group
+import time
 import auxiliary as aux
 import gradient_descent as gd
-
-pool_size = 30
-
-max_iter = 10
 
 def sort_func(c):
     return c[0]
 
 # Função de construção gulosa
-def get_random_greedy_solution(df):
+def get_random_greedy_solution(df, pool_size):
     indexes = df.index.values.tolist()
     team_amount = len(df.index)//aux.team_size
     teams = [[] for i in range(team_amount)]
@@ -42,33 +37,38 @@ def get_random_greedy_solution(df):
     return teams
 
             
-def grasp():
-    # Importa base de dados
-    df = aux.import_data_fifa(110)
-    scaled_df = aux.scale_dataframe(df)
+def grasp(df, max_iter, pool_size, max_time):
 
+    start_time = time.process_time()
+
+    # Manter melhor solução
     best_sol = []
 
-    print('INICIANDO GRASP')
-
-    for i in range(max_iter):
+    # Roda iterações de GRASP
+    iter = 0
+    while iter < max_iter and (time.process_time() - start_time) < max_time:
         
         # FASE CONSTRUTIVA
-        curr_sol = get_random_greedy_solution(scaled_df)
-        print('Solução Construída por Função Gulosa')
+        # Constrói solução de forma gulosa
+        curr_sol = get_random_greedy_solution(df, pool_size)
 
         # INTENSIFICAÇÃO (BUSCA LOCAL)
-        print('######### BUSCA LOCAL #########')
-        curr_sol = gd.gradient_descent(curr_sol, scaled_df)
+        curr_sol = gd.gradient_descent(curr_sol, df)
         
         # Caso seja melhor que a melhor encontrada até então, a substitui
-        if(aux.fitness(curr_sol, scaled_df) < aux.fitness(best_sol, scaled_df)):
+        if(aux.fitness(curr_sol, df) < aux.fitness(best_sol, df)):
             best_sol = curr_sol
-            print('Nova Melhor Solução Encontrada')
-            aux.print_DPs(best_sol, df, scaled_df)
-    
-    print('FIM')
-    print('Solução Final')
-    aux.print_DPs(best_sol, df, scaled_df)
 
-grasp()
+    return best_sol
+
+# MAIN
+if __name__ == "__main__":
+
+    # Importa base de dados
+    df = aux.import_data_fifa(110, 42)
+    # Escala base de dados
+    scaled_df = aux.scale_dataframe(df)
+
+    # Roda algoritmo
+    final_sol = grasp(scaled_df, 20, 8)
+    aux.print_DPs(final_sol, df, scaled_df)

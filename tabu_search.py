@@ -1,47 +1,51 @@
+import time
 import auxiliary as aux
 
-max_size = 30
-max_iter = 80
+def tabu_search(start_sol, df, max_iter, max_size, max_time):
 
-def tabu_search():
-    # Importa base de dados
-    df = aux.import_data_fifa(110)
-    scaled_df = aux.scale_dataframe(df)
+    start_time = time.process_time()
 
-    # Toma solução randômica como primeira solução
-    curr_sol = aux.get_random_solution(scaled_df)
+    curr_sol = start_sol
 
     # Cria lista Tabu
     tabu_list = [curr_sol]
 
+    # Guarda melhor solução
     best_sol = curr_sol
-
-    print('INICIANDO BUSCA TABU')
-    print('Solução Randômica Gerada')
-    aux.print_DPs(curr_sol, df, scaled_df)
-
-    print('######### BUSCA LOCAL #########')
-    for i in range(max_iter):
+    iter = 0
+    while iter < max_iter and (time.process_time() - start_time) < max_time:
+        iter += 1
         neighborhood = aux.get_neighborhood(curr_sol)
 
         # Caso ache uma solução melhor, seleciona ela
         # Caso contrário, usa primeiro vizinho
         curr_sol = neighborhood[0]
         for neighbor_sol in neighborhood:
-            if (not tabu_list.__contains__(neighbor_sol)) and aux.fitness(neighbor_sol, scaled_df) < aux.fitness(curr_sol, scaled_df):
+            if (not tabu_list.__contains__(neighbor_sol)) and aux.fitness(neighbor_sol, df) < aux.fitness(curr_sol, df):
                 curr_sol = neighbor_sol
 
         # Atualizar melhor solução encontrada até então, se necessário
-        if aux.fitness(curr_sol, scaled_df) < aux.fitness(best_sol, scaled_df):
+        if aux.fitness(curr_sol, df) < aux.fitness(best_sol, df):
             best_sol = curr_sol
 
         # Insere solução na lista Tabu
         tabu_list.append(curr_sol)
         if(len(tabu_list) > max_size):
-            tabu_list.pop(0)    
+            tabu_list.pop(0)
 
-    print('FIM')
-    print('Solução Final')
-    aux.print_DPs(best_sol, df, scaled_df)
+    return best_sol 
 
-tabu_search()
+# MAIN
+if __name__ == "__main__":
+
+    # Importa base de dados
+    df = aux.import_data_fifa(110, 42)
+    # Escala base de dados
+    scaled_df = aux.scale_dataframe(df)
+
+    # Toma solução randômica como primeira solução
+    start_sol = aux.get_random_solution(scaled_df)
+
+    # Roda algoritmo
+    final_sol = tabu_search(start_sol, scaled_df, 30, 80, 60)
+    aux.print_DPs(final_sol, df, scaled_df)

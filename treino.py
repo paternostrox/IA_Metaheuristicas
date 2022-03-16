@@ -45,8 +45,8 @@ ts_max_size = [20, 40, 75, 130]
 # print('Busca Tabu:', ts_results)        
 
 # Grade de parâmetros para GRASP
-gsp_max_iter = [5, 10, 20, 30]
-gsp_pool_size = [4, 8, 10, 16]
+gsp_max_iter = [10, 15, 30, 50]
+gsp_pool_size = [8, 16, 32, 64]
 
 gsp_results = []
 for i in range(len(gsp_max_iter)):

@@ -36,6 +36,35 @@ def get_random_solution(df):
         teams.append(team)
     return teams
 
+# Função de construção gulosa
+def get_random_greedy_solution(df, pool_size):
+    indexes = df.index.values.tolist()
+    team_amount = len(df.index)//team_size
+    teams = [[] for i in range(team_amount)]
+
+    for n in range(team_size):
+
+        best = []
+
+        for i in range(pool_size):
+            idx = copy.copy(indexes)
+            random.shuffle(idx)
+            candidate = copy.deepcopy(teams)
+
+            # Atribui um jogador (dos que restam) randômicamente a cada time
+            for j in range(team_amount-1,-1,-1):
+                candidate[j].append(idx[j])
+                idx.pop(j)
+
+            if(fitness(candidate, df) < fitness(best, df)):
+                best = candidate
+
+        teams = best
+        for team in teams:
+            indexes.remove(team[n])
+
+    return teams
+
 def scale_dataframe(df):
     scaled_df = pd.DataFrame(scaler.fit_transform(df), index=df.index, columns=df.columns)
     return scaled_df

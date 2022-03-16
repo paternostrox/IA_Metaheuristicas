@@ -19,13 +19,13 @@ def get_random_greedy_solution(df, pool_size):
 
         for i in range(pool_size):
             idx = copy.copy(indexes)
+            random.shuffle(idx)
             candidate = copy.deepcopy(teams)
 
             # Atribui um jogador (dos que restam) randômicamente a cada time
-            for j in range(team_amount):
-                rnd = random.randrange(0,len(idx))
-                candidate[j].append(idx[rnd])
-                idx.pop(rnd)
+            for j in range(team_amount-1,-1,-1):
+                candidate[j].append(idx[j])
+                idx.pop(j)
 
             if(aux.fitness(candidate, df) < aux.fitness(best, df)):
                 best = candidate
@@ -35,7 +35,6 @@ def get_random_greedy_solution(df, pool_size):
             indexes.remove(team[n])
 
     return teams
-
             
 def grasp(df, max_iter, pool_size, max_time):
 
@@ -47,10 +46,11 @@ def grasp(df, max_iter, pool_size, max_time):
     # Roda iterações de GRASP
     iter = 0
     while iter < max_iter and (time.process_time() - start_time) < max_time:
-        
+        iter += 1
         # FASE CONSTRUTIVA
         # Constrói solução de forma gulosa
         curr_sol = get_random_greedy_solution(df, pool_size)
+
 
         # INTENSIFICAÇÃO (BUSCA LOCAL)
         curr_sol = gd.gradient_descent(curr_sol, df)
@@ -70,5 +70,7 @@ if __name__ == "__main__":
     scaled_df = aux.scale_dataframe(df)
 
     # Roda algoritmo
-    final_sol = grasp(scaled_df, 20, 8)
+    start_time = time.process_time()
+    final_sol = grasp(scaled_df, 1, 1, 30)
+    print('TEMPO:', time.process_time() - start_time)
     aux.print_DPs(final_sol, df, scaled_df)

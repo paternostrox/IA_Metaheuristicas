@@ -20,33 +20,33 @@ df = aux.import_data_fifa(110, 21)
 scaled_df = aux.scale_dataframe(df)
 
 # Grade de parâmetros para Tabu Search
-ts_max_iter = [15, 30, 40, 60]
-ts_max_size = [20, 40, 80, 120]
+ts_max_iter = [30, 120, 240, 580]
+ts_max_size = [20, 40, 75, 130]
 
-ts_results = []
-for i in range(len(ts_max_iter)):
-    for j in range(len(ts_max_size)):
-        config_stds = []
-        config_times = []
-        for n in range(test_amount):
-            start_time = time.process_time()
-            # Toma solução randômica como primeira solução
-            start_sol = aux.get_random_solution(scaled_df)
-            # Roda algoritmo
-            final_sol = ts.tabu_search(start_sol, scaled_df, ts_max_iter[i], ts_max_size[j], max_time)
-            end_time = time.process_time()
-            config_stds.append(aux.fitness(final_sol, scaled_df))
-            config_times.append(end_time - start_time)
+# ts_results = []
+# for i in range(len(ts_max_iter)):
+#     for j in range(len(ts_max_size)):
+#         config_stds = []
+#         config_times = []
+#         for n in range(test_amount):
+#             start_time = time.process_time()
+#             # Toma solução randômica como primeira solução
+#             start_sol = aux.get_random_solution(scaled_df)
+#             # Roda algoritmo
+#             final_sol = ts.tabu_search(start_sol, scaled_df, ts_max_iter[i], ts_max_size[j], max_time)
+#             end_time = time.process_time()
+#             config_stds.append(aux.fitness(final_sol, scaled_df))
+#             config_times.append(end_time - start_time)
 
-        std_mean = st.mean(config_stds)
-        time_mean = st.mean(config_times)
-        ts_results.append([std_mean, time_mean])
+#         std_mean = st.mean(config_stds)
+#         time_mean = st.mean(config_times)
+#         ts_results.append([std_mean, time_mean])
 
-print('Busca Tabu:', ts_results)        
+# print('Busca Tabu:', ts_results)        
 
 # Grade de parâmetros para GRASP
 gsp_max_iter = [5, 10, 20, 30]
-gsp_pool_size = [4, 8, 16, 32]
+gsp_pool_size = [4, 8, 10, 16]
 
 gsp_results = []
 for i in range(len(gsp_max_iter)):

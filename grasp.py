@@ -4,9 +4,10 @@ import time
 import auxiliary as aux
 import gradient_descent as gd
 
-def sort_func(c):
-    return c[0]
-            
+########
+# GRASP
+########        
+
 def grasp(df, max_iter, pool_size, max_time):
 
     start_time = time.process_time()
@@ -18,10 +19,9 @@ def grasp(df, max_iter, pool_size, max_time):
     iter = 0
     while iter < max_iter and (time.process_time() - start_time) < max_time:
         iter += 1
-        # FASE CONSTRUTIVA
-        # Constrói solução de forma gulosa
-        curr_sol = aux.get_random_greedy_solution(df, pool_size)
 
+        # FASE CONSTRUTIVA (constrói solução de forma gulosa)
+        curr_sol = aux.get_random_greedy_solution(df, pool_size)
 
         # INTENSIFICAÇÃO (BUSCA LOCAL)
         curr_sol = gd.gradient_descent(curr_sol, df)
@@ -42,6 +42,6 @@ if __name__ == "__main__":
 
     # Roda algoritmo
     start_time = time.process_time()
-    final_sol = grasp(scaled_df, 1, 1, 30)
+    final_sol = grasp(scaled_df, 8, 15, 30)
     print('TEMPO:', time.process_time() - start_time)
     aux.print_DPs(final_sol, df, scaled_df)

@@ -8,11 +8,16 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statistics as stats
 
+#####################################################
+# Teste de Descida de Gradiente, Tabu Search e GRASP
+#####################################################
+
 # Importa base de dados
 df = aux.import_data_fifa(110, 42)
 # Escala base de dados
 scaled_df = aux.scale_dataframe(df)
 
+# Numero de testes a serem efetuados
 test_amount = 30
 
 # Gera soluções randômicas
@@ -67,14 +72,14 @@ for i in range(test_amount):
     gsp_time.append(time.process_time() - start_time)
     gsp_sols.append(final_sol)
 
-# DP de atributos separados
+# Desvio Padrão de atributos separados
 rnd_results_sep = []
 gdy_results_sep = []
 gd_results_sep = []
 ts_results_sep = []
 gsp_results_sep = []
 
-# DP FITNESS (média dos atributos)
+# Desvio Padrão FITNESS (média dos atributos)
 rnd_results = []
 gdy_results = []
 gd_results = []
@@ -83,11 +88,11 @@ gsp_results = []
 
 # Calcula Desvios Padrões
 for i  in range(test_amount):
-    rnd_results_sep.append(aux.fitness_sep(rnd_sols[i], scaled_df))
-    gdy_results_sep.append(aux.fitness_sep(gdy_sols[i], scaled_df))
-    gd_results_sep.append(aux.fitness_sep(gd_sols[i], scaled_df))
-    ts_results_sep.append(aux.fitness_sep(ts_sols[i], scaled_df))
-    gsp_results_sep.append(aux.fitness_sep(gsp_sols[i], scaled_df))
+    rnd_results_sep.append(aux.get_std(rnd_sols[i], scaled_df))
+    gdy_results_sep.append(aux.get_std(gdy_sols[i], scaled_df))
+    gd_results_sep.append(aux.get_std(gd_sols[i], scaled_df))
+    ts_results_sep.append(aux.get_std(ts_sols[i], scaled_df))
+    gsp_results_sep.append(aux.get_std(gsp_sols[i], scaled_df))
 
     rnd_results.append(aux.fitness(rnd_sols[i], scaled_df))
     gdy_results.append(aux.fitness(gdy_sols[i], scaled_df))
@@ -111,13 +116,12 @@ print('Medias Busca Tabu |', 'Age:', stats.mean([aov[0] for aov in ts_results_se
 print('Medias GRASP |', 'Age:', stats.mean([aov[0] for aov in gsp_results_sep]), 'Overall:', stats.mean([aov[1] for aov in gsp_results_sep]), 
 'Value:', stats.mean([aov[2] for aov in gsp_results_sep]), 'Fitness', stats.mean(gsp_results), 'Time', stats.mean(gsp_time))
 
-# Plota grafico de velas
-plt.boxplot([rnd_results, gdy_results, gd_results, ts_results, gsp_results])
-plt.xticks([1, 2, 3, 4, 5], ['Sol. Randômica', 'Sol. Gulosa', 'Descida de Gradiente', 'Busca Tabu', 'GRASP'])
-plt.show()
-
-# Teste de Student, dado um algoritmo A e B 
+# Teste de Student, dado métodos A e B 
 # Testa-se a hipótese nula que o desempenho de A é igual ao de B (M_a = M_b)
+print('Teste para a hipótese nula M_gd = M_gdy')
+t,p = st.ttest_ind(gd_results, gdy_results)
+print('T value:', t, 'P value:', p)
+
 print('Teste para a hipótese nula M_gd = M_ts')
 t,p = st.ttest_ind(gd_results, ts_results)
 print('T value:', t, 'P value:', p)
@@ -129,3 +133,8 @@ print('T value:', t, 'P value:', p)
 print('Teste para a hipótese nula M_ts = M_gsp')
 t,p = st.ttest_ind(ts_results, gsp_results)
 print('T value:', t, 'P value:', p)
+
+# Plota grafico de velas
+plt.boxplot([rnd_results, gdy_results, gd_results, ts_results, gsp_results])
+plt.xticks([1, 2, 3, 4, 5], ['Sol. Randômica', 'Sol. Gulosa', 'Descida de Gradiente', 'Busca Tabu', 'GRASP'])
+plt.show()

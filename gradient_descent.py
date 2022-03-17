@@ -1,6 +1,10 @@
 from asyncio.windows_events import NULL
 import auxiliary as aux
 
+#######################
+# Descida de Gradiente
+#######################
+
 def gradient_descent(start_sol, df):
 
     curr_sol = start_sol

@@ -1,19 +1,19 @@
-from cmath import inf
 import copy
 from operator import index
 import random
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
-import time
 import statistics as stats
-
 from sklearn import preprocessing
+
+#####################
+# Funções Auxiliares
+#####################
 
 team_size = 11
 scaler = preprocessing.StandardScaler()
 
+# Importa base de dados
 def import_data_fifa(elem_amount, rnd_state = None):    
     df = pd.read_csv('data/data.csv').sample(n=110,random_state=rnd_state)
     df = df[['Age', 'Overall', 'Value']]
@@ -23,6 +23,7 @@ def import_data_fifa(elem_amount, rnd_state = None):
     #print(df.head())
     return df
 
+# Retorna solução randômica
 def get_random_solution(df):
     teams = []
     indexes = df.index.values.tolist()
@@ -65,6 +66,7 @@ def get_random_greedy_solution(df, pool_size):
 
     return teams
 
+# Escala data frame com StandardScaler
 def scale_dataframe(df):
     scaled_df = pd.DataFrame(scaler.fit_transform(df), index=df.index, columns=df.columns)
     return scaled_df
@@ -87,14 +89,7 @@ def get_means(solution, df):
         means.append(aov)
     return means
 
-def get_means_scaled(solution, df):
-    means = get_means(solution, df)
-    scaled_means = scaler.fit_transform(means)
-    return scaled_means
-
-def print_means(means):
-    print(*['[%.3f, %.3f, %.3f]' % (vals[0], vals[1], vals[2]) for vals in means])
-
+# Função de debug, imprime Desvios Padrões e fitness para comparação
 def print_DPs(sol, df, scaled_df):
     print('DP Normal:', get_std(sol, df))
     print('DP Escalado:', get_std(sol, scaled_df), 'FITNESS:', fitness(sol, scaled_df))
@@ -147,17 +142,5 @@ def fitness(solution, df):
     means = get_means(solution, df)
     std = get_std_means(means)
     fitness = (std[0] + std[1] + std [2]) / 3
-
-    return fitness
-
-# Retorna solution fitness em cada atributo
-# Quanto menor melhor
-def fitness_sep(solution, df):
-    if(len(solution) == 0 or len(solution[0]) == 0):
-        return np.Inf
-
-    means = get_means(solution, df)
-    std = get_std_means(means)
-    fitness = std
 
     return fitness

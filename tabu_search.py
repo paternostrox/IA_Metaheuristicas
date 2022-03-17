@@ -1,6 +1,10 @@
 import time
 import auxiliary as aux
 
+#############
+# Busca Tabu
+#############
+
 def tabu_search(start_sol, df, max_iter, max_size, max_time):
 
     start_time = time.process_time()
